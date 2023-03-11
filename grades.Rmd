@@ -1,0 +1,91 @@
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+data = read.csv("Student_Marks.csv")
+```
+
+
+```{r}
+print(data)
+```
+```{r}
+summary(data)
+```
+```{r}
+head(data)
+```
+```{r}
+str(data)
+```
+```{r}
+summary(data$Marks)
+```
+
+
+
+```{r}
+library(dplyr)
+count(data)
+tally(data)
+```
+```{r}
+cor(data)
+```
+```{r}
+library(psych)
+pairs.panels(data)
+```
+
+```{r}
+histogram = ggplot(data, aes(x=Marks)) + geom_histogram()
+histogram
+```
+
+```{r}
+names(data)
+```
+
+```{r}
+library(caret)
+indexTrain <- createDataPartition(data$Marks, p = 0.8,list = FALSE)
+data_train <- data[indexTrain,]
+data_test <- data[-indexTrain,]
+
+```
+
+```{r}
+set.seed(1)
+library(caret)
+
+train.control = trainControl(method = "cv", number = 10)
+linearRegression <- train(Marks ~., data = data, method = "lm", trControl = train.control)
+print(linearRegression)
+summary(linearRegression)
+
+#Checking the RMSE
+predictionsLR= predict(linearRegression, data_test)
+RMSE(predictionsLR, data_test$Marks)
+R2(predictionsLR, data_test$Marks)
+
+```
+```{r}
+library(randomForest)
+set.seed(111)
+ctrl <- trainControl(method = "cv", number = 10)
+grid_rf <- expand.grid(mtry = c(2, 4, 8, 16))
+rf<- train(Marks ~ ., data = data_train, importance=T, method = "rf", trControl = ctrl, tuneGrid = grid_rf)
+varImp(rf)
+
+predictionsRF <- predict(rf, data_test)
+RMSE(predictionsRF, data_test$Marks)
+R2(predictionsRF, data_test$Marks)
+```
+20 most important variables shown (out of 38)
+
+```
+
